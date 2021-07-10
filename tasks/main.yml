@@ -1,0 +1,65 @@
+---
+- name: Create ~/.aws directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ linux_userhome }}/.aws"
+    state: directory
+    owner: "{{ linux_user }}"
+    group: "{{ linux_user }}"
+    mode: 0755
+
+- name: Create ~/.aws/config and write default region
+  become: yes
+  ansible.builtin.copy:
+    content: |
+            [default]
+            region = {{ aws_region }}
+    dest: "{{ linux_userhome }}/.aws/config"
+    owner: "{{ linux_user }}"
+    group: "{{ linux_user }}"
+    mode: 0600
+  delegate_to: localhost
+
+- name: Create AWS IAM user
+  community.aws.iam:
+    iam_type: user
+    name: "{{ awsiam_user }}"
+    state: present
+    access_key_state: create
+  register: awsiam_results
+
+- name: Set access key vaules to Ansible variables
+  become: yes
+  ansible.builtin.set_fact:
+    aws_access_key_id: "{{ awsiam_results.user_meta.access_keys.0.access_key_id }}"
+    aws_secret_access_key: "{{ awsiam_results.user_meta.access_keys.0.secret_access_key }}"
+
+- name: Create ~/.aws/credentials and write access keys
+  become: yes
+  ansible.builtin.copy:
+    content: |
+            [default]
+            aws_access_key_id = {{ aws_access_key_id }}
+            aws_secret_access_key = {{ aws_secret_access_key }}
+    dest: "{{ linux_userhome }}/.aws/credentials"
+    owner: "{{ linux_user }}"
+    group: "{{ linux_user }}"
+    mode: 0600
+  delegate_to: localhost
+
+- name: Change permissions of ~/.aws directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ linux_userhome }}/.aws"
+    state: directory
+    owner: "{{ linux_user }}"
+    group: "{{ linux_user }}"
+    mode: 0600
+
+- name: Create a new policy from template and attach to user
+  community.aws.iam_policy:
+    iam_type: user
+    iam_name: "{{ awsiam_user }}"
+    policy_name: "{{ awsiam_policy_name }}"
+    state: present
+    policy_json: "{{ lookup( 'file', '{{ awsiam_policy_file_path }}') }}"

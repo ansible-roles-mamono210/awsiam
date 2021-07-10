@@ -1,0 +1,32 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: delegated
+  options:
+    managed: false
+    ansible_connection_options:
+      ansible_connection: local
+platforms:
+  - name: instance
+    linux_group: runner
+    linux_user: runner
+    linux_userhome: /home/runner
+    aws_region: ap-northeast-1
+    awsiam_user: ${AWSIAM_USER}
+    awsiam_policy_file_path: molecule/default/files/molecule.json
+    awsiam_policy_name: ${AWSIAM_POLICY_NAME}
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      callback_whitelist: ansible.posix.profile_tasks
+verifier:
+  name: ansible
+scenario:
+  test_sequence:
+    - syntax
+    - cleanup
+    - converge
+    - verify
+    - cleanup

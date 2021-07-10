@@ -1,0 +1,8 @@
+---
+linux_group:
+linux_user:
+linux_userhome:
+awsiam_user:
+awsiam_policy_file_path:
+awsiam_policy_name:
+aws_regison:

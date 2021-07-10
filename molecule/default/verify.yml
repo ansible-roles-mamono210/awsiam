@@ -1,0 +1,30 @@
+---
+- name: Verify
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: set_fact molecule_platforms
+      set_fact:
+        molecule_platforms: "{{ molecule_yml.platforms }}"
+
+    - name: Make sure molecule could create keypair
+      amazon.aws.ec2_key:
+        name: molecule_test_for_creating_keypair_github_actions
+        state: present
+        region: "{{ molecule_platforms.0.aws_region }}"
+
+    - name: Make sure molecule could delete  keypair
+      amazon.aws.ec2_key:
+        name: molecule_test_for_creating_keypair_github_actions
+        state: absent
+        region: "{{ molecule_platforms.0.aws_region }}"
+
+    - name: Check OS version
+      ansible.builtin.command: cat /etc/os-release
+      register: os_version
+      changed_when: false
+
+    - name: Show OS version
+      ansible.builtin.debug:
+        var: os_version
