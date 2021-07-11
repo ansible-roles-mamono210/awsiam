@@ -7,6 +7,7 @@
     owner: "{{ linux_user }}"
     group: "{{ linux_user }}"
     mode: 0755
+  when: awsiam_user_state == 'present'
 
 - name: Create ~/.aws/config and write default region
   become: yes
@@ -19,12 +20,13 @@
     group: "{{ linux_user }}"
     mode: 0600
   delegate_to: localhost
+  when: awsiam_user_state == 'present'
 
-- name: Create AWS IAM user
+- name: Create/Delete AWS IAM user
   community.aws.iam:
     iam_type: user
     name: "{{ awsiam_user }}"
-    state: present
+    state: "{{ awsiam_user_state }}"
     access_key_state: create
   register: awsiam_results
 
@@ -33,6 +35,7 @@
   ansible.builtin.set_fact:
     aws_access_key_id: "{{ awsiam_results.user_meta.access_keys.0.access_key_id }}"
     aws_secret_access_key: "{{ awsiam_results.user_meta.access_keys.0.secret_access_key }}"
+  when: awsiam_user_state == 'present'
 
 - name: Create ~/.aws/credentials and write access keys
   become: yes
@@ -46,6 +49,7 @@
     group: "{{ linux_user }}"
     mode: 0600
   delegate_to: localhost
+  when: awsiam_user_state == 'present'
 
 - name: Change permissions of ~/.aws directory
   become: yes
@@ -55,6 +59,7 @@
     owner: "{{ linux_user }}"
     group: "{{ linux_user }}"
     mode: 0600
+  when: awsiam_user_state == 'present'
 
 - name: Create a new policy from template and attach to user
   community.aws.iam_policy:
@@ -63,3 +68,4 @@
     policy_name: "{{ awsiam_policy_name }}"
     state: present
     policy_json: "{{ lookup( 'file', '{{ awsiam_policy_file_path }}') }}"
+  when: awsiam_user_state == 'present'

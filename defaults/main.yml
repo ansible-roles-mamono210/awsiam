@@ -2,7 +2,8 @@
 linux_group:
 linux_user:
 linux_userhome:
-awsiam_user:
 awsiam_policy_file_path:
 awsiam_policy_name:
+awsiam_user:
+awsiam_user_state:
 aws_regison:

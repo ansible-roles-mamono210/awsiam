@@ -5,14 +5,17 @@
   gather_facts: false
   no_log: "{{ molecule_no_log }}"
   tasks:
-    - name: Delete AWS IAM user
-      community.aws.iam:
-        iam_type: user
-        name: "{{ item.awsiam_user }}"
-        state: absent
-      loop: "{{ molecule_yml.platforms }}"
-      loop_control:
-        index_var: index
+    - name: set_fact molecule_platforms
+      set_fact:
+        molecule_platforms: "{{ molecule_yml.platforms }}"
+
+    - name: Execute
+      ansible.builtin.include_role:
+        name: awsiam
+      vars:
+        aws_region: "{{ molecule_platforms.0.aws_region }}"
+        awsiam_user: "{{ molecule_platforms.0.awsiam_user }}"
+        awsiam_user_state: absent
 
     # Mandatory configuration for Molecule to function.
     - name: Populate instance config
