@@ -14,7 +14,19 @@ None
 Role Variables
 --------------
 
-None
+```YAML
+---
+aws_access_key:
+aws_secret_key:
+linux_group:
+linux_user:
+linux_userhome:
+awsiam_policy_file_path:
+awsiam_policy_name:
+awsiam_user:
+awsiam_user_state:
+aws_regison:
+```
 
 Dependencies
 ------------

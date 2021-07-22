@@ -24,6 +24,8 @@
 
 - name: Create/Delete AWS IAM user
   community.aws.iam:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
     iam_type: user
     name: "{{ awsiam_user }}"
     state: "{{ awsiam_user_state }}"
@@ -63,6 +65,8 @@
 
 - name: Create a new policy from template and attach to user
   community.aws.iam_policy:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
     iam_type: user
     iam_name: "{{ awsiam_user }}"
     policy_name: "{{ awsiam_policy_name }}"
