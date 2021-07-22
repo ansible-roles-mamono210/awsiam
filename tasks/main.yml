@@ -6,7 +6,7 @@
     state: directory
     owner: "{{ linux_user }}"
     group: "{{ linux_user }}"
-    mode: 0755
+    mode: 0775
   when: awsiam_user_state == 'present'
 
 - name: Create ~/.aws/config and write default region
@@ -51,16 +51,6 @@
     group: "{{ linux_user }}"
     mode: 0600
   delegate_to: localhost
-  when: awsiam_user_state == 'present'
-
-- name: Change permissions of ~/.aws directory
-  become: yes
-  ansible.builtin.file:
-    path: "{{ linux_userhome }}/.aws"
-    state: directory
-    owner: "{{ linux_user }}"
-    group: "{{ linux_user }}"
-    mode: 0600
   when: awsiam_user_state == 'present'
 
 - name: Create a new policy from template and attach to user
