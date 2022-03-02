@@ -13,6 +13,8 @@
       ansible.builtin.include_role:
         name: awsiam
       vars:
+        aws_access_key: "{{ molecule_platforms.0.aws_access_key }}"
+        aws_secret_key: "{{ molecule_platforms.0.aws_secret_key }}"
         aws_region: "{{ molecule_platforms.0.aws_region }}"
         awsiam_user: "{{ molecule_platforms.0.awsiam_user }}"
         awsiam_user_state: absent

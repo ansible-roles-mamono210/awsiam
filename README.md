@@ -1,4 +1,4 @@
-
+[![CircleCI](https://circleci.com/gh/ansible-roles-mamono210/awsiam/tree/master.svg?style=svg)](https://circleci.com/gh/ansible-roles-mamono210/awsiam/tree/master)
 [![](https://github.com/ansible-roles-mamono210/awsiam/workflows/build/badge.svg)](https://github.com/ansible-roles-mamono210/awsiam/actions?query=workflow%3Abuild)
 
 Role Description

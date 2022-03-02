@@ -1,0 +1,65 @@
+---
+version: 2.1
+
+executors:
+  molecule:
+    docker:
+      - image: ghcr.io/docker-hub-tm/circleci-executors_molecule/molecule:ec2
+    resource_class: small
+
+jobs:
+  build:
+    executor: molecule
+    working_directory: ~/awsiam
+    steps:
+      - checkout
+      - run:
+          name: Set environment variable with timestamp for making sure Molecule would create unique AWS resources
+          command: |
+            TIMESTAMP=$(date --date "9 hours" "+%Y%m%d_%H%M%S")
+            VALUE='molecule_awsiam'
+            AWSIAM_USER="${VALUE}_${TIMESTAMP}"
+            AWSIAM_POLICY_NAME="${VALUE}_${TIMESTAMP}"
+            echo "export AWSIAM_USER=$AWSIAM_USER" >> $BASH_ENV
+            echo "export AWSIAM_POLICY_NAME=$AWSIAM_POLICY_NAME" >> $BASH_ENV
+            source $BASH_ENV
+      - run:
+          name: Install required Ansible Collections and roles
+          command: |
+            ansible-galaxy collection install community.molecule
+      - run:
+          name: Test with molecule
+          command: |
+            molecule converge
+            sleep 30
+            molecule verify
+            molecule cleanup
+          environment:
+            ANSIBLE_FORCE_COLOR: '1'
+            # AWS_ACCESS_KEY_ID_1: sotred in CircleCI environment variables
+            # AWS_DEFAULT_REGION: sotred in CircleCI environment variables
+            # AWS_SECRET_ACCESS_KEY_1: stored in CircleCI environment variables
+            # AWSIAM_USER: stored in CircleCI environment variables
+            # AWSIAM_POLICY_NAME: stored in CircleCI environment variables
+            PROFILE_TASKS_SORT_ORDER: 'none'
+            PROFILE_TASKS_TASK_OUTPUT_LIMIT: '200'
+            PY_COLORS: '1'
+            TZ: 'Asia/Tokyo'
+      - run:
+          name: Show Ansible version
+          command: |
+            pip list | grep ansible \
+            | GREP_COLORS='mt=01;34' egrep --color=always '[[:digit:]]' \
+            | GREP_COLORS='mt=01;34' egrep --color=always '\.' \
+            | GREP_COLORS='mt=01;33' egrep --color=always 'ansible.* '
+            ansible --version
+      - run:
+          name: Show Molecule version
+          command: molecule --version
+
+workflows:
+  version: 2.1
+  execute:
+    jobs:
+      - build:
+          context: aws-credentials
