@@ -63,3 +63,8 @@
     state: present
     policy_json: "{{ lookup( 'file', '{{ awsiam_policy_file_path }}') }}"
   when: awsiam_user_state == 'present'
+
+- name: Wait 30 seconds for the configuration to be reflected
+  ansible.builtin.pause:
+    seconds: 30
+  when: awsiam_user_state == 'present'

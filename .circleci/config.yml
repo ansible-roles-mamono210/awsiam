@@ -30,10 +30,7 @@ jobs:
       - run:
           name: Test with molecule
           command: |
-            molecule converge
-            sleep 30
-            molecule verify
-            molecule cleanup
+            molecule test
           environment:
             ANSIBLE_FORCE_COLOR: '1'
             # AWS_ACCESS_KEY_ID_1: sotred in CircleCI environment variables
