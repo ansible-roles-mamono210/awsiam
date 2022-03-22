@@ -23,20 +23,26 @@
   when: awsiam_user_state == 'present'
 
 - name: Create/Delete AWS IAM user
-  community.aws.iam:
+  community.aws.iam_user:
     aws_access_key: "{{ aws_access_key }}"
     aws_secret_key: "{{ aws_secret_key }}"
-    iam_type: user
     name: "{{ awsiam_user }}"
     state: "{{ awsiam_user_state }}"
-    access_key_state: create
-  register: awsiam_results
+
+- name: Create AWS Access key
+  community.aws.iam_access_key:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    user_name: "{{ awsiam_user }}"
+    state: present
+  register: iam_access_key_resutls
+  when: awsiam_user_state == 'present'
 
 - name: Set access key vaules to Ansible variables
   become: yes
   ansible.builtin.set_fact:
-    aws_access_key_id: "{{ awsiam_results.user_meta.access_keys.0.access_key_id }}"
-    aws_secret_access_key: "{{ awsiam_results.user_meta.access_keys.0.secret_access_key }}"
+    aws_access_key_id: "{{ iam_access_key_resutls.access_key_id }}"
+    aws_secret_access_key: "{{ iam_access_key_resutls.secret_access_key }}"
   when: awsiam_user_state == 'present'
 
 - name: Create ~/.aws/credentials and write access keys
