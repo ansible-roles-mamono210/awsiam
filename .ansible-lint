@@ -2,3 +2,4 @@
 parseable: true
 skip_list:
   - 'role-name'
+  - 'fqcn-builtins'
